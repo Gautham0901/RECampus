@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}{{ club.name }} - Members{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">{{ club.name }} - Members</h1>
+    <div class="club-info">
+        <p><strong>Description:</strong> {{ club.description }}</p>
+        <p><strong>Coordinator:</strong> {{ club.coordinator_email }}</p>
+    </div>
+    
+    <div class="members-list">
+        <h2>Club Members</h2>
+        {% if members %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Roll Number</th>
+                        <th>Department</th>
+                        <th>Role</th>
+                        <th>Joined On</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for member in members %}
+                    <tr>
+                        <td>{{ member.name }}</td>
+                        <td>{{ member.roll_number }}</td>
+                        <td>{{ member.department }}</td>
+                        <td><span class="role-badge role-{{ member.role }}">{{ member.role }}</span></td>
+                        <td>{{ member.joined_at }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No members found.</p>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.club-info {
+    margin: 1rem 0;
+    padding: 1rem;
+    background: var(--primary-light);
+    border-radius: 4px;
+}
+
+.members-list {
+    margin-top: 2rem;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+th, td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+th {
+    background: var(--primary-light);
+    font-weight: bold;
+}
+
+.role-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.role-president {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.role-secretary {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.role-member {
+    background-color: var(--secondary-color);
+    color: white;
+}
+</style>
+{% endblock %} 

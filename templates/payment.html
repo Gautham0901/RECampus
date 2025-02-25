@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Payment{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">Complete Payment</h1>
+    
+    <div class="payment-summary">
+        <p>Amount to Pay: ₹{{ amount }}</p>
+        <p>Pickup Code: <span class="pickup-code">{{ pickup_code }}</span></p>
+        <p>Document: {{ filename }}</p>
+        <p>Specifications:</p>
+        <ul>
+            <li>Copies: {{ copies }}</li>
+            <li>{{ "Color" if is_color else "Black & White" }}</li>
+            <li>{{ "Double-sided" if is_double_sided else "Single-sided" }}</li>
+        </ul>
+    </div>
+    
+    <form method="POST" action="{{ url_for('process_payment') }}">
+        <input type="hidden" name="request_id" value="{{ request_id }}">
+        <input type="hidden" name="pickup_code" value="{{ pickup_code }}">
+        <button type="submit" class="btn" id="pay-button">Pay Now (Demo)</button>
+    </form>
+    
+    <div class="action-buttons" style="margin-top: 1rem;">
+        <a href="{{ url_for('print_request') }}" class="btn btn-secondary">Cancel</a>
+    </div>
+</div>
+{% endblock %} 

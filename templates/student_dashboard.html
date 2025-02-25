@@ -1,0 +1,478 @@
+{% extends "base.html" %}
+
+{% block title %}Student Dashboard{% endblock %}
+
+{% block content %}
+
+
+<div class="dashboard-container">
+    
+    
+    <div class="dashboard-grid">
+        <!-- Top Row: Important Information -->
+        <div class="dashboard-row top-row">
+            <!-- Student Info Card -->
+            <div class="dashboard-panel">
+                <h2>Welcome, {{ student.name }}</h2>
+                <div class="dashboard-panel-content">
+                    <p><strong>Roll Number:</strong> {{ student.roll_number }}</p>
+                    <p><strong>Department:</strong> {{ student.department }}</p>
+                    <p><strong>Type:</strong> {{ student.student_type }}</p>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="dashboard-panel">
+                <h2>Quick Actions</h2>
+                <div class="dashboard-panel-content quick-actions">
+                    <a href="{{ url_for('print_request') }}" class="action-btn">
+                        <i class="fas fa-print"></i>
+                        <span>Print Request</span>
+                    </a>
+                    <a href="{{ url_for('apply_leave') }}" class="action-btn">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Apply Leave</span>
+                    </a>
+                    <a href="{{ url_for('report_lost_item') }}" class="action-btn">
+                        <i class="fas fa-search"></i>
+                        <span>Lost Item</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Middle Row: Services -->
+        <div class="dashboard-row services-row">
+            <!-- Food Ordering -->
+            <div class="service-panel">
+                <i class="fas fa-utensils service-icon"></i>
+                <div class="service-content">
+                    <h3>Food Ordering</h3>
+                    <p>Order food from campus cafes</p>
+                    <a href="{{ url_for('food_index') }}" class="btn">Order Now</a>
+                </div>
+            </div>
+
+            <!-- Cab Sharing -->
+            <div class="service-panel">
+                <i class="fas fa-car service-icon"></i>
+                <div class="service-content">
+                    <h3>Cab Sharing</h3>
+                    <p>Share rides and save money</p>
+                    <a href="{{ url_for('cab_share') }}" class="btn">Find Rides</a>
+                </div>
+            </div>
+
+            <!-- View Ride Requests -->
+            <div class="service-panel">
+                <i class="fas fa-users service-icon"></i>
+                <div class="service-content">
+                    <h3>View Ride Requests</h3>
+                    <p>Find students to share cab with</p>
+                    <a href="{{ url_for('cab_share_requests') }}" class="btn">View Requests</a>
+                </div>
+            </div>
+
+            <!-- Lost & Found -->
+            <div class="status-panel">
+                <h3><i class="fas fa-search"></i> Lost Items Report</h3>
+                {% if lost_items %}
+                    <div class="status-list">
+                        {% for item in lost_items[:3] %}
+                            <div class="status-item">
+                                <div class="item-details">
+                                    <span class="item-name">{{ item.item_name }}</span>
+                                    <span class="item-location">{{ item.location }}</span>
+                                    <span class="status-badge status-{{ item.status }}">{{ item.status }}</span>
+                                </div>
+                                <span class="item-date">{{ item.reported_date }}</span>
+                            </div>
+                        {% endfor %}
+                        <a href="{{ url_for('my_lost_items') }}" class="view-all-btn">View All Reports</a>
+                    </div>
+                {% else %}
+                    <p class="no-data">No lost items reported</p>
+                    <a href="{{ url_for('report_lost_item') }}" class="btn">Report Lost Item</a>
+                {% endif %}
+            </div>
+
+            <!-- Event Registration -->
+            <div class="service-panel">
+                <i class="fas fa-calendar-plus service-icon"></i>
+                <div class="service-content">
+                    <h3>Event Registration</h3>
+                    <p>Create and manage club events</p>
+                    <a href="{{ url_for('create_club_event') }}" class="btn">Create Event</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Row: Status Panels -->
+        <div class="dashboard-row status-row">
+            <!-- Recent Print Requests -->
+            <div class="status-panel">
+                <h3>Print Requests</h3>
+                {% if print_requests %}
+                    <div class="status-list">
+                        {% for req in print_requests[:3] %}
+                            <div class="status-item">
+                                <span class="status-badge status-{{ req.status }}">{{ req.status }}</span>
+                                <span>Code: {{ req.pickup_code }}</span>
+                                <span>₹{{ req.total_cost }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="no-data">No print requests yet</p>
+                {% endif %}
+            </div>
+
+            <!-- Recent Leave Applications -->
+            <div class="status-panel">
+                <h3>Leave Applications</h3>
+                {% if leave_applications %}
+                    <div class="status-list">
+                        {% for app in leave_applications[:3] %}
+                            <div class="status-item">
+                                <span class="status-badge status-{{ app.status }}">{{ app.status }}</span>
+                                <span>{{ app.start_date }} - {{ app.end_date }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="no-data">No leave applications</p>
+                {% endif %}
+            </div>
+
+            <!-- Event Permissions -->
+            <div class="status-panel">
+                <h3><i class="fas fa-calendar-check"></i> Event Permissions</h3>
+                {% if events %}
+                    <div class="status-list">
+                        {% for event in events[:3] %}
+                            <div class="status-item">
+                                <div class="item-details">
+                                    <span class="item-name">{{ event.name }}</span>
+                                    <div class="approval-statuses">
+                                        <span class="status-badge status-{{ event.coordinator_approval }}">
+                                            Coordinator: {{ event.coordinator_approval }}
+                                        </span>
+                                        {% if event.coordinator_approval == 'approved' %}
+                                            <span class="status-badge status-{{ event.principal_approval }}">
+                                                Principal: {{ event.principal_approval }}
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <span class="item-date">{{ event.event_date }}</span>
+                            </div>
+                        {% endfor %}
+                        <a href="{{ url_for('club_events', club_id=events[0].club_id) }}" class="view-all-btn">View All Events</a>
+                    </div>
+                {% else %}
+                    <p class="no-data">No event permissions</p>
+                    <a href="{{ url_for('create_club_event') }}" class="btn">Create Event</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.header-actions {
+    position: absolute;
+    top: 1rem;
+    right: 2rem;
+    z-index: 100;
+}
+
+.logout-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 5px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.logout-btn:hover {
+    background: rgba(255, 59, 48, 0.8);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(255, 59, 48, 0.3);
+}
+
+.logout-btn i {
+    font-size: 1.1em;
+}
+
+.dashboard-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding: 1rem;
+}
+
+.dashboard-row {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.top-row {
+    grid-template-columns: 1fr 2fr;
+}
+
+.services-row {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.status-row {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.service-panel {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    transition: transform 0.3s ease;
+    color: white;
+}
+
+.service-panel:hover {
+    transform: translateY(-5px);
+}
+
+.service-panel .service-icon {
+    font-size: 2.5rem;
+    color: #2196F3;
+    text-shadow: 0 0 10px rgba(33, 150, 243, 0.3);
+}
+
+.service-panel .service-content {
+    flex: 1;
+}
+
+.service-panel h3 {
+    margin-bottom: 0.5rem;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+.service-panel p {
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 1rem;
+}
+
+.service-panel .btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: #2196F3;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.service-panel .btn:hover {
+    background: #1976D2;
+    transform: translateY(-2px);
+}
+
+.quick-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: rgba(33, 150, 243, 0.8);
+    border-radius: 8px;
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    justify-content: center;
+}
+
+.action-btn:hover {
+    background: rgba(33, 150, 243, 1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
+}
+
+.action-btn i {
+    font-size: 1.2em;
+    color: white;
+}
+
+.action-btn span {
+    color: white;
+    font-weight: 500;
+}
+
+.status-panel {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 1.5rem;
+    color: white;
+}
+
+.status-panel h3 {
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    margin-bottom: 1rem;
+}
+
+.status-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: white;
+}
+
+.status-item span {
+    color: white;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+}
+
+.no-data {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.8);
+    padding: 1rem;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+}
+
+@media (max-width: 768px) {
+    .top-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .service-panel {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
+.item-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.item-name {
+    font-weight: 600;
+    color: #90CAF9;
+}
+
+.item-location {
+    font-size: 0.9em;
+    color: #64B5F6;
+}
+
+.item-date {
+    font-size: 0.8em;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.view-all-btn {
+    display: block;
+    text-align: center;
+    padding: 0.5rem;
+    margin-top: 1rem;
+    background: rgba(33, 150, 243, 0.2);
+    border-radius: 5px;
+    color: #90CAF9;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.view-all-btn:hover {
+    background: rgba(33, 150, 243, 0.3);
+    transform: translateY(-2px);
+}
+
+.status-badge.status-found {
+    background: #4CAF50;
+}
+
+.status-badge.status-pending {
+    background: #FFC107;
+    color: black;
+}
+
+.status-badge.status-searching {
+    background: #2196F3;
+}
+
+.approval-statuses {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 0.3rem;
+}
+
+.status-badge.status-pending {
+    background: rgba(255, 193, 7, 0.2);
+    color: #FFC107;
+}
+
+.status-badge.status-approved {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4CAF50;
+}
+
+.status-badge.status-rejected {
+    background: rgba(244, 67, 54, 0.2);
+    color: #F44336;
+}
+
+.item-name {
+    font-weight: 600;
+    color: #2196F3;
+    display: block;
+}
+
+.item-date {
+    font-size: 0.8em;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.view-all-btn {
+    display: block;
+    text-align: center;
+    padding: 0.5rem;
+    margin-top: 1rem;
+    background: rgba(33, 150, 243, 0.2);
+    border-radius: 5px;
+    color: #90CAF9;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.view-all-btn:hover {
+    background: rgba(33, 150, 243, 0.3);
+    transform: translateY(-2px);
+}
+</style>
+{% endblock %} 

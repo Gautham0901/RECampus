@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}My Orders{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>My Orders</h1>
+    
+    <div class="orders-grid">
+        {% for order in orders %}
+        <div class="order-card">
+            <div class="order-header">
+                <h3>Order #{{ order.order_id }}</h3>
+                <span class="status-badge status-{{ order.status }}">{{ order.status }}</span>
+            </div>
+            <div class="order-details">
+                <p><strong>Cafe:</strong> {{ order.cafe_name }}</p>
+                <p><strong>Total:</strong> ₹{{ "%.2f"|format(order.total_amount) }}</p>
+                <p><strong>Items:</strong></p>
+                <ul>
+                    {% for item in order.items.split(',') %}
+                    <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+                <p><strong>Date:</strong> {{ order.created_at }}</p>
+            </div>
+        </div>
+        {% else %}
+        <p>No orders found.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.orders-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.order-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.status-pending {
+    background: #ffd700;
+    color: black;
+}
+
+.status-completed {
+    background: #4caf50;
+    color: white;
+}
+
+.order-details ul {
+    list-style: none;
+    padding-left: 1rem;
+    margin: 0.5rem 0;
+}
+
+.order-details li {
+    margin: 0.25rem 0;
+}
+</style>
+{% endblock %} 

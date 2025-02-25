@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Campus Clubs{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">Campus Clubs</h1>
+    
+    <div class="clubs-list">
+        {% for club in clubs %}
+        <div class="club-card">
+            <h2>{{ club.name }}</h2>
+            <p class="club-description">{{ club.description }}</p>
+            <div class="club-details">
+                <p><strong>Club ID:</strong> {{ club.id }}</p>
+                <p><strong>Staff Coordinator:</strong> {{ club.coordinator_email }}</p>
+                {% if club.president_name %}
+                    <p><strong>President:</strong> {{ club.president_name }} ({{ club.president_roll }})</p>
+                {% else %}
+                    <p><em>No president assigned</em></p>
+                {% endif %}
+            </div>
+            {% if session.role == 'student' %}
+                <div class="club-actions">
+                    <a href="{{ url_for('club_events', club_id=club.id) }}" class="btn btn-small">View Events</a>
+                    <button onclick="joinClub('{{ club.id }}')" class="btn btn-small btn-secondary">Join Club</button>
+                </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.clubs-list {
+    display: grid;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.club-card {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    background: white;
+}
+
+.club-description {
+    color: #666;
+    margin: 1rem 0;
+}
+
+.club-details {
+    background: var(--primary-light);
+    padding: 1rem;
+    border-radius: 4px;
+    margin: 1rem 0;
+}
+
+.club-details p {
+    margin: 0.5rem 0;
+}
+
+.club-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+</style>
+
+<script>
+async function joinClub(clubId) {
+    try {
+        const response = await fetch('/club/join', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ club_id: clubId })
+        });
+        
+        if (response.ok) {
+            location.reload();
+        } else {
+            throw new Error('Failed to join club');
+        }
+    } catch (error) {
+        alert('Error joining club: ' + error.message);
+    }
+}
+</script>
+{% endblock %} 

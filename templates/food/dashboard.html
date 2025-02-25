@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Campus Food{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Campus Food</h1>
+    
+    <div class="cafes-grid">
+        {% for cafe in cafes %}
+        <div class="cafe-card">
+            <h3>{{ cafe.email }}</h3>
+            <p>Campus Food Service</p>
+            <a href="{{ url_for('cafe_menu', cafe_id=cafe.id) }}" class="btn-primary">View Menu</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.container h1 {
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.cafes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.cafe-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.cafe-card:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.cafe-card h3 {
+    margin: 0 0 0.5rem 0;
+    color: #2196F3;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.cafe-card p {
+    margin: 0 0 1rem 0;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.btn-primary {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: rgba(33, 150, 243, 0.9);
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.btn-primary:hover {
+    background: rgba(33, 150, 243, 1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+</style>
+{% endblock %} 

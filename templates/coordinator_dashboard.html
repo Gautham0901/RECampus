@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+
+{% block title %}Coordinator Dashboard{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">Club Coordinator Dashboard</h1>
+    
+    <div class="clubs-section">
+        <h2>My Clubs</h2>
+        {% for club in clubs %}
+            <div class="club-card">
+                <h3>{{ club.name }}</h3>
+                <p>{{ club.description }}</p>
+                <div class="club-stats">
+                    <p><strong>Members:</strong> {{ club.member_count }}</p>
+                    <p><strong>Pending Events:</strong> {{ club.pending_events }}</p>
+                </div>
+                <div class="club-actions">
+                    <a href="{{ url_for('club_events', club_id=club.id) }}" class="btn btn-small">View Events</a>
+                    <a href="{{ url_for('club_members', club_id=club.id) }}" class="btn btn-small">View Members</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    
+    <div class="pending-events">
+        <h2>Pending Event Approvals</h2>
+        {% if events %}
+            {% for event in events %}
+            <div class="event-card">
+                <h3>{{ event.name }}</h3>
+                <p class="event-club">{{ event.club_name }}</p>
+                <div class="event-details">
+                    <p><strong>Date:</strong> {{ event.event_date }}</p>
+                    <p><strong>Time:</strong> {{ event.start_time }} - {{ event.end_time }}</p>
+                    <p><strong>Venue:</strong> {{ event.venue_name }}</p>
+                    <p><strong>Expected Participants:</strong> {{ event.expected_participants }}</p>
+                </div>
+                <div class="event-actions">
+                    <button 
+                        class="btn btn-success btn-small"
+                        data-event-id="{{ event.id }}"
+                        onclick="approveEvent(this.getAttribute('data-event-id'))"
+                    >
+                        Approve
+                    </button>
+                    <button 
+                        class="btn btn-danger btn-small"
+                        data-event-id="{{ event.id }}"
+                        onclick="rejectEvent(this.getAttribute('data-event-id'))"
+                    >
+                        Reject
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>No pending events for approval.</p>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.card {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 2rem;
+    margin: 2rem;
+    color: white;
+}
+
+.card-title {
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.clubs-section {
+    margin-bottom: 2rem;
+}
+
+.clubs-section h2 {
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.club-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    color: white;
+    transition: transform 0.3s ease;
+}
+
+.club-card:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.club-card h3 {
+    color: #2196F3;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.club-card p {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.club-stats {
+    display: flex;
+    gap: 2rem;
+    margin: 1rem 0;
+    color: white;
+}
+
+.club-stats strong {
+    color: #2196F3;
+}
+
+.club-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.event-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    color: white;
+    transition: transform 0.3s ease;
+}
+
+.event-card:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.event-card h3 {
+    color: #2196F3;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    margin-bottom: 0.5rem;
+}
+
+.event-club {
+    color: #90CAF9;
+    font-weight: 500;
+}
+
+.event-details {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 1rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+    color: white;
+}
+
+.event-details p {
+    margin: 0.5rem 0;
+}
+
+.event-details strong {
+    color: #2196F3;
+}
+
+.event-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.btn {
+    background: rgba(33, 150, 243, 0.9);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 5px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.btn:hover {
+    background: rgba(33, 150, 243, 1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-small {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}
+
+.btn-success {
+    background: rgba(76, 175, 80, 0.9);
+}
+
+.btn-success:hover {
+    background: rgba(76, 175, 80, 1);
+}
+
+.btn-danger {
+    background: rgba(244, 67, 54, 0.9);
+}
+
+.btn-danger:hover {
+    background: rgba(244, 67, 54, 1);
+}
+
+.pending-events h2 {
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    margin: 2rem 0 1rem;
+}
+
+.pending-events p {
+    color: rgba(255, 255, 255, 0.7);
+    text-align: center;
+    padding: 1rem;
+}
+</style>
+
+<script>
+async function approveEvent(eventId) {
+    await updateEventStatus(eventId, 'approved');
+}
+
+async function rejectEvent(eventId) {
+    await updateEventStatus(eventId, 'rejected');
+}
+
+async function updateEventStatus(eventId, status) {
+    try {
+        const response = await fetch(`/event/${eventId}/coordinator-approval`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status })
+        });
+        
+        if (response.ok) {
+            location.reload();
+        } else {
+            throw new Error('Failed to update status');
+        }
+    } catch (error) {
+        alert('Error updating event status: ' + error.message);
+    }
+}
+</script>
+{% endblock %} 

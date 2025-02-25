@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}RECampus{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    {% block head %}{% endblock %}
+    <style>
+        body {
+            /* Remove or comment out the background-image property */
+            /* background-image: url("{{ url_for('static', filename='images/image.png') }}"); */
+            background-color: #1a1a2e;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            position: relative;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        /* Add semi-transparent overlay to improve readability */
+        main {
+            background-color: rgba(0, 0, 0, 0.2);
+            min-height: 100vh;
+            padding: 0;  /* Remove top padding */
+            box-sizing: border-box;
+            position: relative;
+            z-index: 1;
+            padding-bottom: 300px; /* Make space for the image */
+        }
+
+        /* Grid System for Dashboard */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 1rem;
+        }
+
+        /* Standard Panel/Card Sizes */
+        .dashboard-panel {
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            color: white;
+            padding: 1.5rem;
+            height: 250px; /* Fixed height for all panels */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s ease;
+        }
+
+        .dashboard-panel:hover {
+            transform: translateY(-5px);
+        }
+
+        .dashboard-panel h2, .dashboard-panel h3 {
+            margin: 0 0 1rem 0;
+            color: #ffffff;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .dashboard-panel-content {
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .dashboard-panel-footer {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Ensure content remains readable */
+        .card, .container {
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            color: white;
+        }
+
+        /* Text styles for better visibility */
+        .card h1, .card h2, .card h3, 
+        .container h1, .container h2, .container h3 {
+            color: #ffffff;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .card p, .container p,
+        .card label, .container label,
+        .card span, .container span {
+            color: #ffffff;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+        }
+
+        /* Style the navbar */
+        .navbar {
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(33, 150, 243, 0.5);
+        }
+
+        .nav-items {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .user-info {
+            color: white;
+            padding: 0.5rem;
+        }
+
+        /* Style flash messages */
+        .flash-message {
+            background-color: rgba(33, 150, 243, 0.3);
+            color: white;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+        }
+
+        /* Add these to your existing styles */
+        .leaflet-container {
+            height: 100%;
+            width: 100%;
+            max-width: 100%;
+            max-height: 100%;
+            background: #f8f9fa;
+        }
+
+        .leaflet-control-container {
+            position: relative;
+            z-index: 1000;
+        }
+
+        /* Button Styles */
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: rgba(33, 150, 243, 0.8);
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: auto;
+            min-width: 100px;
+            text-align: center;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            font-weight: 500;
+            color: #ffffff !important;
+        }
+
+        .btn:hover {
+            background-color: rgba(33, 150, 243, 1);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        /* Style links inside cards */
+        .card a, .container a {
+            color: #64B5F6;
+            text-decoration: none;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+        }
+
+        .card a:hover, .container a:hover {
+            color: #90CAF9;
+            text-decoration: underline;
+        }
+
+        /* Input fields */
+        input, select, textarea {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-color: #2196F3;
+            outline: none;
+        }
+
+        ::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Add stylish font for headings */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+            letter-spacing: 1px;
+        }
+
+        /* Fix dashboard tiles */
+        .dashboard-tile {
+            background: transparent;
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 8px;
+            text-align: center;
+            text-decoration: none;
+            color: white;
+            transition: transform 0.2s, box-shadow 0.2s;
+            height: 250px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dashboard-tile:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(33, 150, 243, 0.2);
+        }
+
+        .dashboard-tile i {
+            font-size: 2.5rem;
+            color: #2196F3;
+            margin-bottom: 1rem;
+        }
+
+        .dashboard-tile h3 {
+            margin: 1rem 0;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .dashboard-tile p {
+            color: rgba(255, 255, 255, 0.9);
+            margin: 0;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+        }
+
+        /* Update Quick Actions styling */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            padding: 1rem;
+        }
+
+        .quick-actions .btn {
+            width: 100%;
+            padding: 1rem;
+            font-family: 'Poppins', sans-serif;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background-color: rgba(33, 150, 243, 0.8);
+            color: #ffffff !important;
+        }
+
+        .quick-actions .btn i {
+            font-size: 1.2em;
+            margin-right: 8px;
+            color: #ffffff;
+        }
+
+        /* Override any inherited text colors */
+        .btn *, .quick-actions .btn * {
+            color: #ffffff !important;
+        }
+
+        /* Add these new styles */
+        .chatbot-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: #2196F3;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .chatbot-button:hover {
+            transform: scale(1.1);
+            background-color: #1976D2;
+        }
+
+        .chatbot-button i {
+            font-size: 24px;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        /* Add these styles for the header logo */
+        header {
+            padding: 1rem 2rem;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo-text {
+            color: white;
+            text-decoration: none;
+            font-size: 2rem;
+            font-weight: bold;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(33, 150, 243, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .logo-text:hover {
+            color: #2196F3;
+            text-shadow: 0 0 15px rgba(33, 150, 243, 0.8);
+        }
+
+        .header-actions {
+            position: absolute;
+            top: 1rem;
+            right: 2rem;
+            z-index: 100;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 59, 48, 0.8);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(255, 59, 48, 0.3);
+        }
+
+        .logout-btn i {
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <a href="{{ url_for('home') }}" class="logo-text">RECampus</a>
+        </div>
+        {% if 'user_id' in session and request.endpoint not in ['home', 'login', 'printer_login'] %}
+        <div class="header-actions">
+            <a href="{{ url_for('logout') }}" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+        {% endif %}
+    </header>
+
+    <main>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="flash-message">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block scripts %}{% endblock %}
+
+    <!-- Add this before closing body tag -->
+    <a href="http://127.0.0.1:5000" target="_blank" class="chatbot-button" title="Chat with RECampus Bot">
+        <i class="fas fa-robot"></i>
+    </a>
+</body>
+</html> 

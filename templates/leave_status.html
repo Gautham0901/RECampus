@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+
+{% block title %}Leave Status{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">Your Leave Applications</h1>
+    
+    <table class="status-table">
+        <thead>
+            <tr>
+                <th>Applied On</th>
+                <th>Duration</th>
+                <th>Reason</th>
+                <th>Class Teacher</th>
+                <th>HOD</th>
+                {% if session.get('student_type') == 'hosteller' %}
+                    <th>Warden</th>
+                {% endif %}
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for app in applications %}
+            <tr>
+                <td class="date-cell">{{ app.created_at }}</td>
+                <td class="duration-cell">{{ app.start_date }} to {{ app.end_date }}</td>
+                <td class="reason-cell">{{ app.reason }}</td>
+                <td>
+                    <div class="authority-cell">{{ app.teacher_name }}</div>
+                    <span class="status-badge status-{{ app.class_teacher_status }}">
+                        {{ app.class_teacher_status }}
+                    </span>
+                </td>
+                <td>
+                    <div class="authority-cell">{{ app.hod_name }}</div>
+                    <span class="status-badge status-{{ app.hod_status }}">
+                        {{ app.hod_status }}
+                    </span>
+                </td>
+                {% if session.get('student_type') == 'hosteller' %}
+                    <td>
+                        <span class="status-badge status-{{ app.warden_status if app.warden_status else 'waiting' }}">
+                            {{ app.warden_status if app.warden_status else 'waiting' }}
+                        </span>
+                    </td>
+                {% endif %}
+                <td>
+                    {% if app.class_teacher_status == 'rejected' %}
+                        <span class="status-badge status-rejected">Rejected by Class Teacher</span>
+                    {% elif app.hod_status == 'rejected' %}
+                        <span class="status-badge status-rejected">Rejected by HOD</span>
+                    {% elif session.get('student_type') == 'hosteller' and app.warden_status == 'rejected' %}
+                        <span class="status-badge status-rejected">Rejected by Warden</span>
+                    {% elif session.get('student_type') == 'hosteller' and app.warden_status == 'approved' %}
+                        <span class="status-badge status-approved">Approved</span>
+                    {% elif session.get('student_type') == 'day_scholar' and app.hod_status == 'approved' %}
+                        <span class="status-badge status-approved">Approved</span>
+                    {% else %}
+                        <span class="status-badge status-pending">In Progress</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <div class="action-buttons">
+        <a href="{{ url_for('apply_leave') }}" class="btn">Apply for New Leave</a>
+    </div>
+</div>
+
+<style>
+    .status-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 2rem;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(10px);
+        border-radius: 10px;
+        border: 1px solid rgba(33, 150, 243, 0.2);
+    }
+
+    .status-table th,
+    .status-table td {
+        padding: 1rem;
+        text-align: left;
+        color: #E3F2FD;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        line-height: 1.5;
+    }
+
+    .status-table th {
+        background: rgba(33, 150, 243, 0.2);
+        font-weight: 600;
+        color: #2196F3;
+    }
+
+    .status-table tr:hover {
+        background: rgba(33, 150, 243, 0.1);
+    }
+
+    .duration-cell {
+        color: #64B5F6;
+        font-weight: 500;
+    }
+
+    .reason-cell {
+        color: #90CAF9;
+        line-height: 1.4;
+    }
+
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.9em;
+        display: inline-block;
+        font-weight: 500;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        letter-spacing: 0.5px;
+    }
+
+    .status-pending {
+        background: #ffd700;
+        color: black;
+        text-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
+    }
+
+    .status-approved {
+        background: #4CAF50;
+        color: white;
+        text-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+    }
+
+    .status-rejected {
+        background: #f44336;
+        color: white;
+        text-shadow: 0 0 5px rgba(244, 67, 54, 0.3);
+    }
+
+    .status-in-progress {
+        background: #2196F3;
+        color: white;
+        text-shadow: 0 0 5px rgba(33, 150, 243, 0.3);
+    }
+
+    .date-cell {
+        color: #82B1FF;
+        font-family: monospace;
+        font-size: 0.95em;
+    }
+
+    .authority-cell {
+        color: #64B5F6;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+
+    h1 {
+        color: #2196F3;
+        margin-bottom: 1rem;
+        text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .action-buttons {
+        margin-top: 2rem;
+        display: flex;
+        gap: 1rem;
+    }
+
+    .btn {
+        background: #2196F3;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 5px;
+        text-decoration: none;
+        transition: all 0.3s;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(33, 150, 243, 0.3);
+        background: #1976D2;
+    }
+
+    .flash-message {
+        background: rgba(33, 150, 243, 0.2);
+        color: #E3F2FD;
+        padding: 1rem;
+        border-radius: 5px;
+        margin-bottom: 1rem;
+        border-left: 4px solid #2196F3;
+    }
+
+    .no-leaves {
+        color: #90CAF9;
+        text-align: center;
+        margin: 2rem 0;
+        font-size: 1.1em;
+    }
+
+    .card {
+        background: rgba(0, 0, 0, 0.4);
+        padding: 2rem;
+        border-radius: 10px;
+        backdrop-filter: blur(10px);
+    }
+
+    .card-title {
+        color: #2196F3;
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+        text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .no-applications {
+        color: #90CAF9;
+        text-align: center;
+        padding: 2rem;
+        font-size: 1.1em;
+    }
+</style>
+{% endblock %} 

@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% block title %}Print Status{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">Your Print Requests</h1>
+    
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-success">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    {% if not requests %}
+        <p>No print requests found.</p>
+    {% else %}
+        <table class="status-table">
+            <thead>
+                <tr>
+                    <th>Pickup Code</th>
+                    <th>File</th>
+                    <th>Specifications</th>
+                    <th>Cost</th>
+                    <th>Status</th>
+                    <th>Created On</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in requests %}
+                <tr>
+                    <td>
+                        <span class="pickup-code">{{ req.pickup_code }}</span>
+                        <div class="pickup-note">Show this code at printer shop</div>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('uploaded_file', filename=req.file_path) }}" 
+                           target="_blank" class="view-file-btn">View File</a>
+                    </td>
+                    <td>
+                        {{ req.copies }} copies<br>
+                        {{ "Color" if req.is_color else "Black & White" }}<br>
+                        {{ "Double-sided" if req.is_double_sided else "Single-sided" }}
+                    </td>
+                    <td class="cost-info">₹{{ req.total_cost }}</td>
+                    <td><span class="status-badge status-{{ req.status }}">{{ req.status }}</span></td>
+                    <td>{{ req.created_at }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+    
+    <div class="action-buttons">
+        <a href="{{ url_for('print_request') }}" class="btn">New Print Request</a>
+        <a href="{{ url_for('home') }}" class="btn btn-secondary">Back to Home</a>
+    </div>
+</div>
+
+<style>
+    .status-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 2rem;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(10px);
+        border-radius: 10px;
+    }
+
+    .status-table th,
+    .status-table td {
+        padding: 1rem;
+        text-align: left;
+        color: white;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .status-table tr:hover {
+        background: rgba(33, 150, 243, 0.2);
+        transition: background 0.3s;
+    }
+
+    .status-table th {
+        background: rgba(33, 150, 243, 0.2);
+        font-weight: 600;
+        color: #2196F3;
+    }
+
+    .pickup-code {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        color: #2196F3;
+        font-family: monospace;
+        font-weight: bold;
+        letter-spacing: 1px;
+        text-shadow: 0 0 10px rgba(33, 150, 243, 0.3);
+    }
+
+    .pickup-note {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.8em;
+        margin-top: 0.5rem;
+    }
+
+    .view-file-btn {
+        background: #2196F3;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .view-file-btn:hover {
+        background: #1976D2;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(33, 150, 243, 0.3);
+    }
+
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.9em;
+        display: inline-block;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .status-pending {
+        background: #ffd700;
+        color: black;
+        text-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
+    }
+
+    .status-ready {
+        background: #4CAF50;
+        color: white;
+        text-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+    }
+
+    .status-completed {
+        background: #2196F3;
+        color: white;
+        text-shadow: 0 0 5px rgba(33, 150, 243, 0.3);
+    }
+
+    .cost-info {
+        color: #69F0AE;
+        font-weight: bold;
+        text-shadow: 0 0 10px rgba(105, 240, 174, 0.3);
+    }
+
+    h1 {
+        color: white;
+        margin-bottom: 1rem;
+        text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .action-buttons {
+        margin-top: 2rem;
+        display: flex;
+        gap: 1rem;
+    }
+
+    .btn {
+        background: #2196F3;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 5px;
+        text-decoration: none;
+        transition: all 0.3s;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(33, 150, 243, 0.3);
+    }
+
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .flash-message {
+        background: rgba(33, 150, 243, 0.2);
+        color: white;
+        padding: 1rem;
+        border-radius: 5px;
+        margin-bottom: 1rem;
+        border-left: 4px solid #2196F3;
+    }
+</style>
+{% endblock %} 

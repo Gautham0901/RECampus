@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Warden Dashboard{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">Warden Dashboard</h1>
+    
+    <div class="leave-applications">
+        <h2>Pending Leave Applications</h2>
+        {% if leave_applications %}
+            {% for application in leave_applications %}
+            <div class="leave-card">
+                <h3>{{ application.student_name }} ({{ application.roll_number }})</h3>
+                <div class="leave-details">
+                    <p><strong>Department:</strong> {{ application.department }}</p>
+                    <p><strong>From:</strong> {{ application.start_date }}</p>
+                    <p><strong>To:</strong> {{ application.end_date }}</p>
+                    <p><strong>Reason:</strong> {{ application.reason }}</p>
+                    <div class="approval-status">
+                        <p><strong>Class Teacher:</strong> <span class="status-badge status-approved">Approved</span></p>
+                        <p><strong>HOD:</strong> <span class="status-badge status-approved">Approved</span></p>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button onclick="updateStatus({{ application.id }}, 'approved')" class="btn btn-success">Approve</button>
+                    <button onclick="updateStatus({{ application.id }}, 'rejected')" class="btn btn-danger">Reject</button>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>No pending leave applications.</p>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.leave-card {
+    border: 1px solid var(--border-color);
+    padding: 1rem;
+    margin: 1rem 0;
+    border-radius: 4px;
+}
+
+.leave-details {
+    background: var(--primary-light);
+    padding: 1rem;
+    border-radius: 4px;
+    margin: 1rem 0;
+}
+
+.approval-status {
+    display: flex;
+    gap: 1rem;
+    margin: 1rem 0;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.status-approved {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.btn-success {
+    background-color: var(--success-color);
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+}
+</style>
+
+<script>
+async function updateStatus(applicationId, status) {
+    try {
+        const response = await fetch(`/leave/${applicationId}/warden-review`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status })
+        });
+        
+        if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.error || 'Failed to update status');
+        }
+        
+        location.reload();
+    } catch (error) {
+        alert('Error updating application status: ' + error.message);
+    }
+}
+</script>
+{% endblock %} 

@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}Teacher Dashboard{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">Teacher Dashboard</h1>
+    <div class="teacher-info">
+        <p><strong>Name:</strong> {{ teacher.name }}</p>
+        <p><strong>Department:</strong> {{ teacher.department }}</p>
+    </div>
+    
+    <div class="leave-applications">
+        <h2>Pending Leave Applications</h2>
+        {% if leave_applications %}
+            {% for application in leave_applications %}
+            <div class="leave-card">
+                <h3>{{ application.student_name }} ({{ application.roll_number }})</h3>
+                <div class="leave-details">
+                    <p><strong>Department:</strong> {{ application.department }}</p>
+                    <p><strong>From:</strong> {{ application.start_date }}</p>
+                    <p><strong>To:</strong> {{ application.end_date }}</p>
+                    <p><strong>Reason:</strong> {{ application.reason }}</p>
+                </div>
+                <div class="action-buttons">
+                    <button onclick="updateStatus({{ application.id }}, 'approved')" class="btn btn-success">Approve</button>
+                    <button onclick="updateStatus({{ application.id }}, 'rejected')" class="btn btn-danger">Reject</button>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>No pending leave applications.</p>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.card {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 2rem;
+    margin: 2rem;
+    color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+    color: white;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.teacher-info {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+    color: white;
+}
+
+.teacher-info p {
+    margin: 0.5rem 0;
+    color: white;
+}
+
+.teacher-info strong {
+    color: #2196F3;
+}
+
+.leave-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    padding: 1.5rem;
+    margin: 1rem 0;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.leave-card h3 {
+    color: #2196F3;
+    margin: 0 0 1rem 0;
+}
+
+.leave-details {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+    color: white;
+}
+
+.leave-details p {
+    margin: 0.5rem 0;
+    color: white;
+}
+
+.leave-details strong {
+    color: #2196F3;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    color: white;
+}
+
+.btn-success {
+    background: rgba(76, 175, 80, 0.9);
+}
+
+.btn-success:hover {
+    background: rgba(76, 175, 80, 1);
+    transform: translateY(-2px);
+}
+
+.btn-danger {
+    background: rgba(244, 67, 54, 0.9);
+}
+
+.btn-danger:hover {
+    background: rgba(244, 67, 54, 1);
+    transform: translateY(-2px);
+}
+</style>
+
+<script>
+async function updateStatus(applicationId, status) {
+    try {
+        const response = await fetch(`/leave/${applicationId}/teacher-review`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status })
+        });
+        
+        if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.error || 'Failed to update status');
+        }
+        
+        location.reload();
+    } catch (error) {
+        alert('Error updating application status: ' + error.message);
+    }
+}
+</script>
+{% endblock %} 

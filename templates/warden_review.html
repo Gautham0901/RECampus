@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Warden Review{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">HOD-Approved Leave Applications</h1>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Student Name</th>
+                <th>Roll Number</th>
+                <th>Department</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Reason</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for app in applications %}
+            <tr>
+                <td>{{ app.student_name }}</td>
+                <td>{{ app.roll_number }}</td>
+                <td>{{ app.department }}</td>
+                <td>{{ app.start_date }}</td>
+                <td>{{ app.end_date }}</td>
+                <td>{{ app.reason }}</td>
+                <td>
+                    <form method="POST" action="{{ url_for('leave_action', application_id=app.id) }}" style="display: inline;">
+                        <button type="submit" name="action" value="approved" class="btn">Approve</button>
+                        <button type="submit" name="action" value="rejected" class="btn" style="background-color: #dc3545;">Reject</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %} 

@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Student Care Dashboard{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">Student Care Dashboard</h1>
+    
+    <div class="action-buttons">
+        <a href="{{ url_for('student_care_lost_items') }}" class="btn">View Lost Items</a>
+        <a href="{{ url_for('home') }}" class="btn btn-secondary">Back to Home</a>
+    </div>
+</div>
+
+<div class="card">
+    <h2 class="card-title">Recent Lost Items</h2>
+    {% if items %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Description</th>
+                    <th>Location</th>
+                    <th>Status</th>
+                    <th>Reported On</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.student_name }}</td>
+                    <td>{{ item.description }}</td>
+                    <td>{{ item.location }}</td>
+                    <td><span class="status-badge status-{{ item.status }}">{{ item.status }}</span></td>
+                    <td>{{ item.created_at }}</td>
+                    <td>
+                        {% if item.status == 'pending' %}
+                            <button onclick="updateStatus('{{ item.id }}', 'found')" class="btn btn-success btn-small">
+                                Mark Found
+                            </button>
+                        {% elif item.status == 'found' %}
+                            <button onclick="updateStatus('{{ item.id }}', 'returned')" class="btn btn-primary btn-small">
+                                Mark Returned
+                            </button>
+                        {% else %}
+                            <span class="completed-text">Completed</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No lost items reported yet.</p>
+    {% endif %}
+</div>
+
+<script>
+async function updateStatus(itemId, status) {
+    try {
+        const response = await fetch(`/lost-item/${itemId}/status`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status })
+        });
+        if (response.ok) {
+            location.reload();
+        } else {
+            throw new Error('Failed to update status');
+        }
+    } catch (error) {
+        alert('Error updating status: ' + error.message);
+    }
+}
+</script>
+{% endblock %} 

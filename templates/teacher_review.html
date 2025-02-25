@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}Class Teacher Review{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">Pending Leave Applications</h1>
+    
+    {% if not applications %}
+        <p>No pending applications to review.</p>
+    {% else %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th>Roll Number</th>
+                    <th>Department</th>
+                    <th>Student Type</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Reason</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app in applications %}
+                <tr>
+                    <td>{{ app.student_name }}</td>
+                    <td>{{ app.roll_number }}</td>
+                    <td>{{ app.department }}</td>
+                    <td><span class="status-badge status-{{ app.student_type }}">{{ app.student_type }}</span></td>
+                    <td>{{ app.start_date }}</td>
+                    <td>{{ app.end_date }}</td>
+                    <td>{{ app.reason }}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <form method="POST" action="{{ url_for('leave_action', application_id=app.id) }}" style="display: inline;">
+                                <button type="submit" name="action" value="approved" class="btn btn-approve">Approve</button>
+                                <button type="submit" name="action" value="rejected" class="btn btn-reject">Reject</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
+
+<style>
+.card {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 2rem;
+    margin: 2rem;
+    color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+    color: white;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 8px;
+    margin-top: 1rem;
+}
+
+th {
+    text-align: left;
+    padding: 1rem;
+    color: #2196F3;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    border-bottom: 2px solid rgba(33, 150, 243, 0.3);
+}
+
+td {
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    color: white;
+}
+
+tr:hover td {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+tr td:first-child {
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+
+tr td:last-child {
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.status-hosteller {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4CAF50;
+    text-shadow: none;
+}
+
+.status-day_scholar {
+    background: rgba(33, 150, 243, 0.2);
+    color: #2196F3;
+    text-shadow: none;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+.btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    color: white;
+}
+
+.btn-approve {
+    background: rgba(76, 175, 80, 0.9);
+}
+
+.btn-approve:hover {
+    background: rgba(76, 175, 80, 1);
+    transform: translateY(-2px);
+}
+
+.btn-reject {
+    background: rgba(244, 67, 54, 0.9);
+}
+
+.btn-reject:hover {
+    background: rgba(244, 67, 54, 1);
+    transform: translateY(-2px);
+}
+
+/* For empty state */
+p {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.1rem;
+    margin: 2rem 0;
+}
+</style>
+{% endblock %} 

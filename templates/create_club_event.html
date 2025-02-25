@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+
+{% block title %}Create Event - {{ club.name }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">Create New Event - {{ club.name }}</h1>
+    
+    <form method="POST" class="event-form">
+        <!-- Basic Event Details -->
+        <div class="form-section">
+            <h2>Event Details</h2>
+            <div class="form-group">
+                <label for="name">Event Name</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="4" required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="participants">Expected Participants</label>
+                <input type="number" id="participants" name="participants" min="1" required>
+            </div>
+        </div>
+        
+        <!-- Date and Time -->
+        <div class="form-section">
+            <h2>Date & Time</h2>
+            <div class="form-group">
+                <label for="event_date">Event Date</label>
+                <input type="date" id="event_date" name="event_date" required>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="start_time">Start Time</label>
+                    <input type="time" id="start_time" name="start_time" required>
+                </div>
+                <div class="form-group">
+                    <label for="end_time">End Time</label>
+                    <input type="time" id="end_time" name="end_time" required>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Venue Selection -->
+        <div class="form-section">
+            <h2>Venue</h2>
+            <div class="form-group">
+                <label for="venue_id">Select Venue</label>
+                <select id="venue_id" name="venue_id" required>
+                    <option value="">Choose a venue...</option>
+                    {% for venue in venues %}
+                        <option value="{{ venue.id }}">
+                            {{ venue.name }} (Capacity: {{ venue.capacity }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        
+        <!-- Additional Services -->
+        <div class="form-section">
+            <h2>Additional Services</h2>
+            
+            <!-- Transport Service -->
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="transport" name="transport">
+                    Need Transport Service
+                </label>
+                
+                <div id="transport_details_section" class="hidden">
+                    <label for="transport_details">Transport Details</label>
+                    <textarea id="transport_details" name="transport_details" 
+                              placeholder="Specify pickup location, time, and number of vehicles needed"></textarea>
+                </div>
+            </div>
+            
+            <!-- Food Service -->
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="food" name="food">
+                    Need Food Service
+                </label>
+                
+                <div id="food_details_section" class="hidden">
+                    <label for="food_details">Food Requirements</label>
+                    <textarea id="food_details" name="food_details" 
+                              placeholder="Specify meal type (breakfast/lunch/dinner/snacks) and number of people"></textarea>
+                    
+                    <div class="meal-types">
+                        <label><input type="checkbox" name="meal_type" value="breakfast"> Breakfast</label>
+                        <label><input type="checkbox" name="meal_type" value="lunch"> Lunch</label>
+                        <label><input type="checkbox" name="meal_type" value="dinner"> Dinner</label>
+                        <label><input type="checkbox" name="meal_type" value="snacks"> Snacks</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn">Create Event</button>
+            <a href="{{ url_for('club_events', club_id=club.id) }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<style>
+.event-form {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.form-section {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.form-section h2 {
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.hidden {
+    display: none;
+}
+
+.meal-types {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+}
+
+select {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 0.75rem;
+    border-radius: 8px;
+    width: 100%;
+    font-size: 1rem;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1em;
+}
+
+select:focus {
+    outline: none;
+    border-color: #2196F3;
+    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+}
+
+select option {
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 0.75rem;
+}
+
+select:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+select option[value=""] {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+label[for="venue_id"] {
+    color: white;
+    margin-bottom: 0.5rem;
+    display: block;
+    font-weight: 500;
+}
+
+option {
+    font-size: 1rem;
+    padding: 0.5rem;
+}
+</style>
+
+<script>
+// Show/hide transport details
+document.getElementById('transport').addEventListener('change', function() {
+    document.getElementById('transport_details_section').classList.toggle('hidden', !this.checked);
+});
+
+// Show/hide food details
+document.getElementById('food').addEventListener('change', function() {
+    document.getElementById('food_details_section').classList.toggle('hidden', !this.checked);
+});
+
+// Set minimum date to today
+const today = new Date().toISOString().split('T')[0];
+document.getElementById('event_date').min = today;
+</script>
+{% endblock %} 

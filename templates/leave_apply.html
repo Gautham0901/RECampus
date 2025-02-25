@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Apply for Leave{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">Apply for Leave</h1>
+    
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <p style="color: green;">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <form method="POST">
+        <div class="form-group">
+            <label for="start_date">Start Date:</label>
+            <input type="date" id="start_date" name="start_date" required>
+        </div>
+        <div class="form-group">
+            <label for="end_date">End Date:</label>
+            <input type="date" id="end_date" name="end_date" required>
+        </div>
+        <div class="form-group">
+            <label for="reason">Reason:</label>
+            <textarea id="reason" name="reason" required rows="4"></textarea>
+        </div>
+        <button type="submit">Submit Application</button>
+    </form>
+    
+    <p><a href="/leave/status">View Application Status</a></p>
+</div>
+{% endblock %} 

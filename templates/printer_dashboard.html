@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block title %}Printer Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h1>Print Requests</h1>
+    
+    {% if requests %}
+    <div class="requests-grid">
+        {% for request in requests %}
+        <div class="request-card">
+            <div class="request-header">
+                <h3>Request from {{ request.student_name }}</h3>
+                <span class="status-badge status-{{ request.status }}">{{ request.status }}</span>
+            </div>
+            
+            <div class="request-details">
+                <p><strong>Roll Number:</strong> {{ request.roll_number }}</p>
+                <p><strong>Pages:</strong> {{ request.pages }}</p>
+                <p><strong>Copies:</strong> {{ request.copies }}</p>
+                <p><strong>Color:</strong> {{ 'Yes' if request.is_color else 'No' }}</p>
+                <p><strong>Double-sided:</strong> {{ 'Yes' if request.is_double_sided else 'No' }}</p>
+                <p><strong>Total Cost:</strong> ₹{{ request.total_cost }}</p>
+                <p><strong>Pickup Code:</strong> {{ request.pickup_code }}</p>
+                
+                <div class="file-link">
+                    <a href="{{ url_for('uploaded_file', filename=request.file_path) }}" target="_blank">
+                        <i class="fas fa-file-pdf"></i> View Document
+                    </a>
+                </div>
+                
+                {% if request.status == 'pending' %}
+                <button class="btn btn-primary" 
+                        data-pickup-code="{{ request.pickup_code }}" 
+                        data-status="ready"
+                        onclick="updateStatus('{{ request.pickup_code }}', 'ready')">
+                    Mark as Ready
+                </button>
+                {% elif request.status == 'ready' %}
+                <button class="btn btn-success" onclick="updateStatus('{{ request.pickup_code }}', 'completed')">
+                    Mark as Completed
+                </button>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="no-requests">No print requests available</p>
+    {% endif %}
+</div>
+
+<style>
+.dashboard-container {
+    padding: 2rem;
+}
+
+.requests-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.request-card {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    border-radius: 10px;
+    padding: 1.5rem;
+    color: white;
+}
+
+.request-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.9em;
+}
+
+.status-pending {
+    background: #ffd700;
+    color: black;
+}
+
+.status-ready {
+    background: #4CAF50;
+}
+
+.status-completed {
+    background: #2196F3;
+}
+
+.request-details p {
+    margin: 0.5rem 0;
+}
+
+.file-link {
+    margin: 1rem 0;
+}
+
+.file-link a {
+    color: #2196F3;
+    text-decoration: none;
+}
+
+.file-link a:hover {
+    text-decoration: underline;
+}
+
+.no-requests {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 2rem;
+}
+
+.btn-primary {
+    background: #2196F3;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.btn-primary:hover {
+    background: #1976D2;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(33, 150, 243, 0.3);
+}
+
+.btn-primary:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-success {
+    background: #4CAF50;
+}
+
+.btn-success:hover {
+    background: #388E3C;
+}
+</style>
+
+<script>
+function updateStatus(pickupCode, newStatus) {
+    fetch(`/print/update-status/${pickupCode}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: newStatus })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.error || 'Error updating status');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating status: ' + error.message);
+    });
+}
+
+// Add event listeners to all status update buttons
+document.addEventListener('DOMContentLoaded', function() {
+    const buttons = document.querySelectorAll('[onclick^="updateStatus"]');
+    buttons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const pickupCode = this.getAttribute('data-pickup-code');
+            const newStatus = this.getAttribute('data-status');
+            updateStatus(pickupCode, newStatus);
+        });
+    });
+});
+</script>
+{% endblock %} 

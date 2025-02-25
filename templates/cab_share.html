@@ -1,0 +1,273 @@
+{% extends "base.html" %}
+
+{% block title %}Create Cab Share Request{% endblock %}
+
+{% block head %}
+    <!-- OpenStreetMap dependencies -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-geosearch@3.8.0/dist/geosearch.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-geosearch@3.8.0/dist/geosearch.umd.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Create Cab Share Request</h1>
+    <div class="card">
+        <form id="ride-form">
+            <div class="form-group">
+                <label for="name">Your Name:</label>
+                <input type="text" id="name" name="name" value="{{ student.name }}" required readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone Number:</label>
+                <input type="tel" id="phone" name="phone" required>
+            </div>
+
+            <div class="form-group">
+                <label for="pickup">Pickup Location:</label>
+                <div class="location-input-wrapper">
+                    <input type="text" id="pickup" name="pickup" placeholder="Search or click on map" required>
+                    <button type="button" class="btn-clear" onclick="clearLocation('pickup')">Clear</button>
+                </div>
+                <div id="pickup-map" class="map-container"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="drop">Drop Location:</label>
+                <div class="location-input-wrapper">
+                    <input type="text" id="drop" name="drop" placeholder="Search or click on map" required>
+                    <button type="button" class="btn-clear" onclick="clearLocation('drop')">Clear</button>
+                </div>
+                <div id="drop-map" class="map-container"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="departure-time">Departure Time:</label>
+                <input type="datetime-local" id="departure-time" name="departure-time" required>
+            </div>
+
+            <div class="form-group">
+                <label for="gender-preference">Gender Preference:</label>
+                <select id="gender-preference" name="gender-preference">
+                    <option value="">No Preference</option>
+                    <option value="male">Male Only</option>
+                    <option value="female">Female Only</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="additional-notes">Additional Notes:</label>
+                <textarea id="additional-notes" name="additional-notes" rows="3" 
+                          placeholder="Any special requirements or information"></textarea>
+            </div>
+
+            <button type="submit" class="btn-submit">Create Ride Request</button>
+        </form>
+    </div>
+</div>
+
+<style>
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    color: #90CAF9;
+}
+
+.map-container {
+    height: 400px;
+    width: 100%;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    position: relative;
+}
+
+/* Ensure map tiles are visible */
+.leaflet-tile {
+    visibility: inherit !important;
+}
+
+/* Ensure controls are above map */
+.leaflet-control-container {
+    position: relative;
+    z-index: 9000 !important;
+}
+
+/* Style the map search box */
+.leaflet-control-geosearch {
+    position: absolute !important;
+    top: 10px !important;
+    right: 10px !important;
+    z-index: 9999 !important;
+}
+
+.leaflet-control-geosearch form {
+    display: flex !important;
+    background: white;
+    padding: 8px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    z-index: 9999 !important;
+}
+
+.leaflet-control-geosearch form input {
+    width: 250px !important;
+    padding: 8px !important;
+    border: 1px solid #2196F3 !important;
+    border-radius: 4px !important;
+    margin-right: 5px !important;
+    z-index: 1000 !important;
+    color: #90CAF9 !important;
+    background: rgba(0, 0, 0, 0.6) !important;
+}
+
+.leaflet-control-geosearch form button {
+    padding: 8px 12px !important;
+    background: var(--primary-color) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 4px !important;
+    cursor: pointer !important;
+}
+
+.leaflet-control-geosearch .results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    margin-top: 5px;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000 !important;
+}
+
+.leaflet-control-geosearch .results > * {
+    padding: 8px;
+    border-bottom: 1px solid #2196F3;
+    cursor: pointer;
+    color: #90CAF9;
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.leaflet-control-geosearch .results > *:hover {
+    background: rgba(33, 150, 243, 0.2);
+}
+
+.location-input-wrapper {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.location-input-wrapper input {
+    flex: 1;
+}
+
+.btn-clear {
+    padding: 0.5rem 1rem;
+    background: var(--danger-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.btn-clear:hover {
+    background: #d32f2f;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+    color: #90CAF9;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: #2196F3;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #2196F3;
+    border-radius: 4px;
+    font-size: 1rem;
+    background: rgba(0, 0, 0, 0.4);
+    color: #90CAF9;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #2196F3;
+    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.25);
+}
+
+input[readonly] {
+    background: rgba(0, 0, 0, 0.3);
+    cursor: not-allowed;
+    color: #64B5F6;
+}
+
+.btn-submit {
+    width: 100%;
+    padding: 1rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.btn-submit:hover {
+    background: var(--primary-dark);
+}
+
+/* Ensure search control is above map tiles */
+.leaflet-top {
+    z-index: 9000 !important;
+}
+
+.leaflet-control {
+    z-index: 9000 !important;
+}
+
+h1 {
+    color: #2196F3;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+::placeholder {
+    color: #64B5F6;
+    opacity: 0.7;
+}
+</style>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/cab_share.js') }}"></script>
+{% endblock %} 

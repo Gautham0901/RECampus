@@ -1,0 +1,299 @@
+{% extends "base.html" %}
+
+{% block title %}Active Cab Share Requests{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Active Cab Share Requests</h1>
+    
+    <div class="rides-container">
+        {% if ride_requests %}
+            {% for ride in ride_requests %}
+                <div class="ride-card">
+                    <div class="ride-header">
+                        <h3>{{ ride.student_name }}</h3>
+                        <span class="departure-time">
+                            {% if ride.departure_time is string %}
+                                Departure: {{ ride.departure_time }}
+                            {% else %}
+                                Departure: {{ ride.departure_time.strftime('%d %b %Y, %I:%M %p') }}
+                            {% endif %}
+                        </span>
+                    </div>
+                    
+                    <div class="ride-details">
+                        <div class="location-info">
+                            <div class="pickup">
+                                <strong>Pickup:</strong> {{ ride.pickup_address }}
+                            </div>
+                            <div class="drop">
+                                <strong>Drop:</strong> {{ ride.drop_address }}
+                            </div>
+                        </div>
+                        
+                        <div class="contact-info hidden" id="contact-{{ ride.id }}">
+                            <div><strong>Phone:</strong> {{ ride.phone }}</div>
+                            {% if ride.gender_preference %}
+                                <div><strong>Preference:</strong> {{ ride.gender_preference }} only</div>
+                            {% endif %}
+                        </div>
+                        
+                        <button class="join-ride-btn" onclick="toggleContact('{{ ride.id }}')">
+                            <i class="fas fa-handshake"></i> Join Ride
+                        </button>
+                    </div>
+
+                    {% if ride.matches %}
+                    <div class="matches">
+                        <h4>Potential Matches</h4>
+                        {% for match in ride.matches %}
+                        <div class="match-card">
+                            <div class="match-header">
+                                <span class="match-name">{{ match.name }}</span>
+                                <span class="match-distance">
+                                    Pickup: {{ match.pickup_distance }}km | Drop: {{ match.drop_distance }}km
+                                </span>
+                            </div>
+                            <div class="match-details">
+                                <div><strong>Departure:</strong> {{ match.departure_time }}</div>
+                                <div><strong>Pickup:</strong> {{ match.pickup }}</div>
+                                <div><strong>Drop:</strong> {{ match.drop }}</div>
+                                <div><strong>Phone:</strong> {{ match.phone }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-rides">
+                <p>No active ride requests found.</p>
+                <a href="{{ url_for('cab_share') }}" class="btn-primary">Create New Request</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="actions">
+        <a href="{{ url_for('cab_share') }}" class="btn-primary">Create New Request</a>
+    </div>
+</div>
+
+<style>
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.rides-container {
+    margin: 20px 0;
+}
+
+.ride-card {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    padding: 20px;
+    color: #90CAF9;
+}
+
+.ride-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #2196F3;
+}
+
+.ride-header h3 {
+    margin: 0;
+    color: #2196F3;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+.departure-time {
+    color: #64B5F6;
+    font-size: 0.9em;
+}
+
+.ride-details {
+    display: grid;
+    gap: 15px;
+}
+
+.location-info {
+    display: grid;
+    gap: 10px;
+    color: #90CAF9;
+}
+
+.pickup, .drop {
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 4px;
+    color: #90CAF9;
+}
+
+.contact-info {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: rgba(33, 150, 243, 0.1);
+    border-radius: 4px;
+    border-left: 4px solid #2196F3;
+}
+
+.contact-info.hidden {
+    display: none;
+}
+
+.contact-info div {
+    margin: 0.5rem 0;
+}
+
+.notes {
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 4px;
+    font-style: italic;
+    color: #64B5F6;
+}
+
+.no-rides {
+    text-align: center;
+    padding: 40px;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    color: #90CAF9;
+}
+
+.actions {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.btn-primary {
+    display: inline-block;
+    padding: 10px 20px;
+    background: #2196F3;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+}
+
+.btn-primary:hover {
+    background: #1976D2;
+}
+
+.matches {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #2196F3;
+}
+
+.match-card {
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 4px;
+    padding: 10px;
+    margin-top: 10px;
+    color: #90CAF9;
+}
+
+.match-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.match-name {
+    font-weight: bold;
+    color: #2196F3;
+}
+
+.match-distance {
+    font-size: 0.9em;
+    color: #64B5F6;
+}
+
+.match-details {
+    display: grid;
+    gap: 5px;
+    font-size: 0.9em;
+    color: #90CAF9;
+}
+
+h1, h2, h3, h4 {
+    color: #2196F3;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+strong {
+    color: #64B5F6;
+}
+
+p {
+    color: #90CAF9;
+}
+
+span {
+    color: #90CAF9;
+}
+
+.hidden {
+    display: none;
+}
+
+.join-ride-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+}
+
+.join-ride-btn:hover {
+    background: #1976D2;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
+}
+
+.join-ride-btn i {
+    font-size: 1.2em;
+}
+</style>
+
+<script>
+function toggleContact(rideId) {
+    const contactInfo = document.getElementById(`contact-${rideId}`);
+    const button = event.target.closest('.join-ride-btn');
+    
+    if (contactInfo.classList.contains('hidden')) {
+        contactInfo.classList.remove('hidden');
+        button.innerHTML = '<i class="fas fa-times"></i> Hide Contact';
+        button.style.background = '#1976D2';
+    } else {
+        contactInfo.classList.add('hidden');
+        button.innerHTML = '<i class="fas fa-handshake"></i> Join Ride';
+        button.style.background = '#2196F3';
+    }
+}
+</script>
+{% endblock %} 

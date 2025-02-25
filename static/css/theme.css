@@ -1,0 +1,215 @@
+:root {
+    --primary-100: #7D3C98;
+    --primary-200: #ae6ac9;
+    --primary-300: #ffcbff;
+    --accent-100: #B76AB3;
+    --accent-200: #ffffff;
+    --text-100: #FFFFFF;
+    --text-200: #e0e0e0;
+    --bg-100: #2E1A47;
+    --bg-200: #3f2958;
+    --bg-300: #594273;
+}
+
+/* Global Styles */
+body {
+    background-color: var(--bg-100);
+    color: var(--text-100);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    min-height: 100vh;
+}
+
+/* Navbar */
+.navbar {
+    background: var(--bg-200);
+    padding: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar a {
+    color: var(--text-100);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    transition: color 0.3s ease;
+}
+
+.navbar a:hover {
+    color: var(--primary-200);
+}
+
+/* Card Styles */
+.card {
+    background: var(--bg-200);
+    color: var(--text-100);
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    margin-bottom: 1rem;
+}
+
+/* Form Styles */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: var(--text-100);
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--bg-300);
+    border-radius: 4px;
+    font-size: 1rem;
+    background: var(--bg-100);
+    color: var(--text-100);
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--primary-200);
+    box-shadow: 0 0 0 2px rgba(125, 60, 152, 0.2);
+}
+
+input[readonly] {
+    background: var(--bg-300);
+    cursor: not-allowed;
+}
+
+/* Button Styles */
+.btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.btn-primary {
+    background: var(--primary-100);
+    color: var(--text-100);
+}
+
+.btn-primary:hover {
+    background: var(--primary-200);
+}
+
+.btn-danger {
+    background: var(--accent-100);
+    color: var(--text-100);
+}
+
+.btn-danger:hover {
+    background: var(--primary-200);
+}
+
+/* Table Styles */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    background: var(--bg-200);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+th, td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--bg-300);
+}
+
+th {
+    background: var(--bg-300);
+    color: var(--text-100);
+    font-weight: bold;
+}
+
+tr:hover {
+    background: var(--bg-300);
+}
+
+/* Navigation Styles */
+nav {
+    background: var(--bg-200);
+    padding: 1rem;
+}
+
+nav a {
+    color: var(--text-100);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+}
+
+nav a:hover {
+    background: var(--bg-300);
+}
+
+/* Alert/Message Styles */
+.alert {
+    padding: 1rem;
+    margin: 1rem 0;
+    border-radius: 4px;
+    background: var(--bg-300);
+    color: var(--text-100);
+}
+
+.alert-success {
+    background: #2ecc71;
+}
+
+.alert-danger {
+    background: var(--accent-100);
+}
+
+/* Status Badge Styles */
+.badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: bold;
+}
+
+.badge-pending {
+    background: var(--primary-300);
+    color: var(--bg-100);
+}
+
+.badge-approved {
+    background: #2ecc71;
+    color: var(--text-100);
+}
+
+.badge-rejected {
+    background: var(--accent-100);
+    color: var(--text-100);
+}
+
+/* Footer */
+footer {
+    background: var(--bg-200);
+    padding: 2rem;
+    margin-top: auto;
+    text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .navbar {
+        padding: 1rem;
+    }
+    
+    .card {
+        margin: 0.5rem 0;
+    }
+} 

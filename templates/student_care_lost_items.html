@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Lost Items Dashboard{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">Lost Items Dashboard</h1>
+    
+    <div class="items-list">
+        {% for item in items %}
+            <div class="item-card">
+                {% if item.image_path %}
+                    <img src="{{ url_for('uploaded_file', filename=item.image_path) }}" 
+                         alt="Lost item image" class="item-image">
+                {% endif %}
+                
+                <div class="item-details">
+                    <h3>Status: <span class="status-badge status-{{ item.status }}">{{ item.status }}</span></h3>
+                    <p><strong>Student:</strong> {{ item.student_name }} ({{ item.roll_number }})</p>
+                    <p><strong>Description:</strong> {{ item.description }}</p>
+                    <p><strong>Location:</strong> {{ item.location }}</p>
+                    {% if item.phone_number %}
+                        <p><strong>Contact:</strong> {{ item.phone_number }}</p>
+                    {% endif %}
+                    <p><strong>Reported:</strong> {{ item.created_at }}</p>
+                    {% if item.found_at %}
+                        <p><strong>Found:</strong> {{ item.found_at }}</p>
+                    {% endif %}
+                    
+                    <div class="actions">
+                        {% if item.status == 'pending' %}
+                            <button onclick="updateStatus('{{ item.id }}', 'found')" 
+                                    class="btn btn-success">Mark as Found</button>
+                        {% elif item.status == 'found' %}
+                            <button onclick="updateStatus('{{ item.id }}', 'returned')" 
+                                    class="btn btn-primary">Confirm Return</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <p>No lost items reported.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+async function updateStatus(itemId, status) {
+    try {
+        const response = await fetch(`/lost-item/${itemId}/status`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status })
+        });
+        
+        if (response.ok) {
+            location.reload();
+        } else {
+            throw new Error('Failed to update status');
+        }
+    } catch (error) {
+        alert('Error updating status: ' + error.message);
+    }
+}
+</script>
+
+<style>
+.items-list {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.item-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1rem;
+    display: flex;
+    gap: 1rem;
+}
+
+.item-image {
+    max-width: 200px;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.item-details {
+    flex: 1;
+}
+
+.actions {
+    margin-top: 1rem;
+}
+
+.status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.status-pending {
+    background-color: #ffd700;
+    color: #000;
+}
+
+.status-found {
+    background-color: #90EE90;
+    color: #000;
+}
+
+.status-returned {
+    background-color: #808080;
+    color: #fff;
+}
+
+.btn-success {
+    background-color: var(--success-color);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+}
+</style>
+{% endblock %} 

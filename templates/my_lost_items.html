@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}My Lost Items{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-title">My Lost Items</h1>
+    
+    <a href="{{ url_for('report_lost_item') }}" class="btn btn-primary">Report New Item</a>
+    
+    <div class="items-list">
+        {% for item in items %}
+            <div class="item-card">
+                {% if item.notification %}
+                    <div class="notification-banner">
+                        {{ item.notification }}
+                    </div>
+                {% endif %}
+                
+                {% if item.image_path %}
+                    <img src="{{ url_for('uploaded_file', filename=item.image_path) }}" 
+                         alt="Lost item image" class="item-image">
+                {% endif %}
+                
+                <div class="item-details">
+                    <h3>Status: <span class="status-badge status-{{ item.status }}">{{ item.status }}</span></h3>
+                    <p><strong>Description:</strong> {{ item.description }}</p>
+                    <p><strong>Location:</strong> {{ item.location }}</p>
+                    {% if item.phone_number %}
+                        <p><strong>Contact:</strong> {{ item.phone_number }}</p>
+                    {% endif %}
+                    <p><strong>Reported:</strong> {{ item.created_at }}</p>
+                    {% if item.found_at %}
+                        <p><strong>Found:</strong> {{ item.found_at }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% else %}
+            <p>No lost items reported.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.items-list {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.item-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1rem;
+    position: relative;
+}
+
+.notification-banner {
+    background-color: #ffd700;
+    color: #000;
+    padding: 0.5rem;
+    margin: -1rem -1rem 1rem -1rem;
+    border-radius: 8px 8px 0 0;
+    font-weight: bold;
+}
+
+.item-image {
+    max-width: 200px;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.status-pending {
+    background-color: #ffd700;
+    color: #000;
+}
+
+.status-found {
+    background-color: #90EE90;
+    color: #000;
+}
+
+.status-returned {
+    background-color: #808080;
+    color: #fff;
+}
+</style>
+{% endblock %} 
